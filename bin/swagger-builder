@@ -10,8 +10,8 @@ const pkg = require('../package.json');
 cmd.version(pkg.version);
 
 cmd.command('build <file>')
-    .description('Dereferences all external $ref pointers to single Swagger file')
-    .option('-o, --output <value>', 'Output file path')
+    .description('Dereferences all external $ref pointers, and generated a single Swagger file')
+    .option('-o, --output <path>', 'Output file path')
     .action((file) => {
 
         let that = this,
