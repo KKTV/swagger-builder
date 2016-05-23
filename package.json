@@ -1,0 +1,20 @@
+{
+  "name": "swagger-toolkit",
+  "version": "0.0.0",
+  "description": "Swagger tools",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "exit 0"
+  },
+  "keywords": [
+    "swagger"
+  ],
+  "author": "Kevin Chiu <kevinchiu@kktv.me>",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "js-yaml": "^3.6.1",
+    "json-refs": "^2.1.5",
+    "swagger-tools": "^0.10.1"
+  }
+}

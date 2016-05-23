@@ -1,0 +1,71 @@
+path1:
+  get:
+    description: |
+        get method
+  options:
+    description: |
+        options method
+
+  post:
+    description: |
+      - Create access token that can grant permission access and identify users to other APIs.
+    produces:
+      - application/json
+    parameters:
+      - $ref: '#/parameters/TokenAuthorizationHeader'
+      - $ref: '#/parameters/ServiceProviderHeader'
+    responses:
+      '200':
+        description: |
+          Token created
+        schema:
+          $ref: '#/definitions/CreateToken200Response'
+      '400':
+        description: |
+          Invalid request
+        schema:
+          $ref: '#/definitions/BadRequest400Response'
+    x-amazon-apigateway-auth:
+      type: none
+    x-amazon-apigateway-integration:
+      type: aws
+      uri: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:312530604583:function:kktv-api-tokens:${stageVariables.env}/invocations
+      httpMethod: post
+      credentials: arn:aws:iam::312530604583:role/APIGatewayLambdaInvoke
+      requestTemplates:
+        'application/json': |
+          {
+            "method": "POST",
+            "bearer_token": "$input.params('Authorization')",
+            "service_provider": "$input.params('X-Service-Provider')"
+          }
+      responses:
+        default:
+          statusCode: '200'
+        '^InvalidRequest: .*$':
+          statusCode: '400'
+          responseTemplates:
+            'application/json': |
+              #set($errorMessage = $input.path('$.errorMessage'))
+              {
+                "status": {
+                  "type": "BadRequest",
+                  "subtype": null,
+                  "message": "$errorMessage"
+                },
+                "data": null
+              }
+        '^AuthError: .*$':
+          statusCode: '401'
+          responseTemplates:
+            'application/json': |
+              #set($errorMessage = $input.path('$.errorMessage'))
+              {
+                "status": {
+                  "type": "Unauthorized",
+                  "subtype": null,
+                  "message": "$errorMessage"
+                },
+                "data": null
+              }
+  

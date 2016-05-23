@@ -1,0 +1,10 @@
+swagger: '2.0'
+info:
+  version: 0.1.4
+schemes:
+  - https
+paths:
+  /1:
+    $ref: '1.yml#/path1'
+  /2:
+    $ref: '2.yml#/path2'

@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const cmd = require('commander'),
+    path = require('path');
+
+const pkg = require('../package.json');
+
+cmd.version(pkg.version);
+
+cmd.command('build <file>')
+    .description('Dereferences all external $ref pointers to single Swagger file')
+    .option('-o, --output <value>', 'Output file path')
+    .action((file) => {
+
+        let that = this,
+            filepath = path.join(process.cwd(), file);
+
+        require('../lib').build(filepath)
+            .then((yamlDoc) => {
+
+                if (that.output) {
+
+                    let fs = require('fs'),
+                        outputPath = path.join(process.cwd(), that.output);
+
+                    fs.writeFile(outputPath, yamlDoc, (err) => {
+                        if (err) console.error(err);
+
+                        console.log('\nSucceed');
+                    });
+
+                } else {
+                    console.log(yamlDoc);
+                }
+            }).catch((err) => console.error(err));
+
+    });
+
+cmd.command('validate <file>')
+    .description('Validate Swagger file')
+    .action((file) => {
+    
+        let fs = require('fs'),
+            YAML = require('js-yaml'),
+            filepath = path.join(process.cwd(), file);
+
+        fs.readFile(filepath, {encoding: 'utf8'}, (err, data) => {
+            require('../lib').validate(YAML.safeLoad(data));
+        });
+    });
+
+cmd.parse(process.argv);

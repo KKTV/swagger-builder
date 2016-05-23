@@ -1,0 +1,7 @@
+path2:
+  delete:
+    description: |
+      delete method
+  put:
+    description: |
+      put method
