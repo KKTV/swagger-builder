@@ -9,31 +9,33 @@ const pkg = require('../package.json');
 
 cmd.version(pkg.version);
 
-cmd.command('build <file>')
+cmd
+    .command('build <file> [out]')
     .description('Dereferences all external $ref pointers, and generated a single Swagger file')
-    .option('-o, --output <path>', 'Output file path')
-    .action((file) => {
+    .action((file, out) => {
 
-        let that = this,
-            filepath = path.join(process.cwd(), file);
+        let filepath = path.join(process.cwd(), file);
 
         require('../lib').build(filepath)
             .then((yamlDoc) => {
 
-                if (that.output) {
+                out = out || 'swagger.yaml';
 
-                    let fs = require('fs'),
-                        outputPath = path.join(process.cwd(), that.output);
+                let fs = require('fs'),
+                    outputPath = path.join(process.cwd(), out),
+                    dirname = path.dirname(outputPath);
 
-                    fs.writeFile(outputPath, yamlDoc, (err) => {
-                        if (err) console.error(err);
-
-                        console.log('\nSucceed');
-                    });
-
-                } else {
-                    console.log(yamlDoc);
+                if (!fs.statSync(dirname).isDirectory()) {
+                    fs.mkdirSync(dirname);
                 }
+
+                fs.writeFile(outputPath, yamlDoc, (err) => {
+                    if (err) console.error(err);
+
+                    console.log('\nSucceed');
+                });
+
+
             }).catch((err) => console.error(err));
 
     });
@@ -41,14 +43,26 @@ cmd.command('build <file>')
 cmd.command('validate <file>')
     .description('Validate Swagger file')
     .action((file) => {
-    
+
         let fs = require('fs'),
             YAML = require('js-yaml'),
             filepath = path.join(process.cwd(), file);
 
-        fs.readFile(filepath, {encoding: 'utf8'}, (err, data) => {
+        fs.readFile(filepath, {
+            encoding: 'utf8'
+        }, (err, data) => {
             require('../lib').validate(YAML.safeLoad(data));
         });
+    });
+
+cmd.command('*', null, {
+        noHelp: true
+    }) // null is required to avoid the implicit 'help' command being added
+    .action(function(str) {
+        // Using log instead of error since commander.js uses console.log for help output
+        console.log(`swagger-builder does not support the ${str} command.`);
+
+        cmd.outputHelp();
     });
 
 cmd.parse(process.argv);
