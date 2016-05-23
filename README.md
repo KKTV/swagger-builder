@@ -1,7 +1,11 @@
 Swagger builder
 ===============
 
-CLI:  
+### Install
+
+`npm install -g git+ssh://git@github.com/KKTV/swagger-builder#0.0.2`
+
+### Usage
 ```
 Usage: swagger-builder [options] [command]
 
