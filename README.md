@@ -11,7 +11,7 @@ Usage: swagger-builder [options] [command]
 
 Commands:
 
-  build [options] <file>  Dereferences all external $ref pointers to single Swagger file
+  build <file> [out] Dereferences all external $ref pointers to single Swagger file
   validate <file>         Validate Swagger file
 
   Options:
