@@ -1,5 +1,5 @@
 {
-  "name": "swagger-toolkit",
+  "name": "swagger-builder",
   "version": "0.0.1",
   "description": "Swagger tools",
   "main": "lib/index.js",
@@ -11,6 +11,9 @@
   ],
   "author": "Kevin Chiu <kevinchiu@kktv.me>",
   "license": "MIT",
+  "bin": {
+    "swagger-builder": "./bin/swagger-builder"
+  },
   "dependencies": {
     "commander": "^2.9.0",
     "js-yaml": "^3.6.1",
