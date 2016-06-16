@@ -3,9 +3,41 @@
 'use strict';
 
 const cmd = require('commander'),
+    fs = require('fs'),
+    YAML = require('js-yaml'),
     path = require('path');
 
-const pkg = require('../package.json');
+const pkg = require('../package.json'),
+    util = require('../lib/util');
+
+const build = (file, out) => {
+
+    let filepath = path.join(process.cwd(), file);
+
+    return require('../lib').build(filepath)
+        .then((yamlDoc) => {
+
+            out = out || 'swagger.yaml';
+
+            let fs = require('fs'),
+                outputPath = path.join(process.cwd(), out),
+                dirname = path.dirname(outputPath);
+
+            if (!fs.statSync(dirname).isDirectory()) {
+                fs.mkdirSync(dirname);
+            }
+
+            return new Promise((resolve, reject) => {
+                fs.writeFile(outputPath, yamlDoc, (err) => {
+                    if (err) reject(err);
+
+                    console.log(` Saving to ${outputPath} succeed`);
+                    resolve(outputPath);
+                });
+            });
+
+        });
+};
 
 cmd.version(pkg.version);
 
@@ -13,45 +45,53 @@ cmd
     .command('build <file> [out]')
     .description('Dereferences all external $ref pointers, and generated a single Swagger file')
     .action((file, out) => {
+        build(file, out).catch((err) => {
+            if (err.errors) {
+                console.error(util.generateErrorWarningMessages(err));
+            } else {
+                console.error(err);
+            }
 
-        let filepath = path.join(process.cwd(), file);
-
-        require('../lib').build(filepath)
-            .then((yamlDoc) => {
-
-                out = out || 'swagger.yaml';
-
-                let fs = require('fs'),
-                    outputPath = path.join(process.cwd(), out),
-                    dirname = path.dirname(outputPath);
-
-                if (!fs.statSync(dirname).isDirectory()) {
-                    fs.mkdirSync(dirname);
-                }
-
-                fs.writeFile(outputPath, yamlDoc, (err) => {
-                    if (err) console.error(err);
-
-                    console.log('\nSucceed');
-                });
-
-
-            }).catch((err) => console.error(err));
-
+        });
     });
 
-cmd.command('validate <file>')
+cmd
+    .command('validate <file>')
     .description('Validate Swagger file')
     .action((file) => {
 
-        let fs = require('fs'),
-            YAML = require('js-yaml'),
-            filepath = path.join(process.cwd(), file);
+        let filepath = path.join(process.cwd(), file);
 
         fs.readFile(filepath, {
             encoding: 'utf8'
         }, (err, data) => {
             require('../lib').validate(YAML.safeLoad(data));
+        });
+    });
+
+cmd
+    .command('deploy <file> [out]')
+    .description('Update API to AWS API gateway')
+    .option('--api-id <id>', 'API ID')
+    .option('--stage-name <name>', 'Stage name')
+    .action((file, out, options) => {
+
+        let builder = require('../lib');
+
+        let apiId = options.apiId,
+            stageName = options.stageName;
+
+        build(file, out).then((outputPath) => {
+
+            return builder.updateAPI(outputPath, apiId, stageName)
+                .then(() => console.log(` Update API ${apiId}(${stageName}) succeed`));
+
+        }).catch((err) => {
+            if (err.errors) {
+                console.error(util.generateErrorWarningMessages(err));
+            } else {
+                console.error(err);
+            }
         });
     });
 

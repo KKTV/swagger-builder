@@ -1,6 +1,6 @@
 {
   "name": "swagger-builder",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Swagger tools",
   "main": "lib/index.js",
   "scripts": {
@@ -15,6 +15,7 @@
     "swagger-builder": "./bin/swagger-builder"
   },
   "dependencies": {
+    "aws-sdk": "^2.3.14",
     "commander": "^2.9.0",
     "js-yaml": "^3.6.1",
     "json-refs": "^2.1.5",
