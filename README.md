@@ -3,7 +3,7 @@ Swagger builder
 
 ### Install
 
-`npm install -g git+ssh://git@github.com/KKTV/swagger-builder#0.0.3`
+`npm install -g git+ssh://git@github.com/KKTV/swagger-builder#0.0.4`
 
 ### Usage
 ```
